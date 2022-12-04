@@ -1,9 +1,11 @@
 package application;
 
 import model.entities.Reservation;
+import model.exceptions.DomainException;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 
 public class Main {
@@ -13,16 +15,14 @@ public class Main {
 
         DateTimeFormatter dtf1 = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-        System.out.print("Room Number: ");
-        int number = sc.nextInt();
-        System.out.print("Check-in Date(dd/MM/yyyy): ");
-        LocalDate checkIn = LocalDate.parse(sc.next(), dtf1);
-        System.out.print("Check-ou Date(dd/MM/yyyy): ");
-        LocalDate checkOut = LocalDate.parse(sc.next(), dtf1);
+        try {
+            System.out.print("Room Number: ");
+            int number = sc.nextInt();
+            System.out.print("Check-in Date(dd/MM/yyyy): ");
+            LocalDate checkIn = LocalDate.parse(sc.next(), dtf1);
+            System.out.print("Check-ou Date(dd/MM/yyyy): ");
+            LocalDate checkOut = LocalDate.parse(sc.next(), dtf1);
 
-        if(checkIn.isAfter(checkOut)){
-            System.out.println("Error in reservation: Check-out date must be after check-in date");
-        } else {
             Reservation reservation = new Reservation(number, checkIn, checkOut);
             System.out.println("Reservation: " + reservation);
 
@@ -34,15 +34,18 @@ public class Main {
             checkOut = LocalDate.parse(sc.next(), dtf1);
 
 
-            String  error = reservation.updateDates(checkIn, checkOut);
-            if(error != null){
-                System.out.println("Error in reservation: " + error);
-            } else {
-                System.out.println("Reservation: " + reservation);
-            }
-
+            reservation.updateDates(checkIn, checkOut);
+            System.out.println("Reservation: " + reservation);
         }
-
+        catch (DomainException e){
+            System.out.println("Error in reservation: " + e.getMessage());
+        }
+        catch (DateTimeParseException e){
+            System.out.println("Illegal date format!");
+        }
+        catch (RuntimeException e){
+            System.out.println("Unexpected error");
+        }
         sc.close();
 
     }
